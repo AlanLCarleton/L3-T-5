@@ -2,28 +2,27 @@
 // Include Libraries
 #include "Arduino.h"
 #include "NewPing.h"
-// Include the Arduino Stepper.h library:
-#include <Stepper.h>
+// Include the Arduino Servo.h library:
+#include "Servo.h"
 
 // Pin Definitions
 #define HCSR04_PIN_TRIG	3
 #define HCSR04_PIN_ECHO	2
+#define SERVO360MICRO_1_PIN_SIG  9
+#define SERVO360MICRO_2_PIN_SIG  10
 
 
 // Global variables and defines
 
 // define vars for testing menu
-const int timeout = 50000;       //define timeout of 50 sec
+const int timeout = 15000;       //define timeout of 15 sec
 char menuOption = 0;
 long time0;
-// number of steps per rotation:
-const int stepsPerRevolution = 512;
-long distance;
 
 // object initialization
 NewPing hcsr04(HCSR04_PIN_TRIG,HCSR04_PIN_ECHO);
-Stepper myStepper = Stepper(stepsPerRevolution, 8, 10, 9, 11);
-
+Servo servo360Micro_1;
+Servo servo360Micro_2;
 
 void setup() 
 {
@@ -32,10 +31,14 @@ void setup()
     Serial.begin(9600);
     while (!Serial) ; // wait for serial port to connect. Needed for native USB
     Serial.println("start");
-
-    // Set stepper motor speed to 12 rpm:
-    myStepper.setSpeed(12);
-
+    
+    servo360Micro_1.attach(SERVO360MICRO_1_PIN_SIG); // attach servo 1 to pin to control it.
+    servo360Micro_1.write(90);  // stoped
+    delay(100);
+    servo360Micro_2.attach(SERVO360MICRO_2_PIN_SIG); // attach servo 2 to pin to control it.
+    servo360Micro_2.write(90);  // stoped
+    delay(100);
+    
     menuOption = menu();
     
 }
@@ -52,25 +55,47 @@ void loop()
         delay(50);
         //distance = hcsr04Dist;
         Serial.print(F("Distance: ")); Serial.print(hcsr04Dist); Serial.println(F("cm"));
-        //Activate stepper motor if sensed distance is 6cm or less
+        //Activate servo if sensed distance is 6cm or less
         if (hcsr04Dist <= 6) {
-          Serial.println("clockwise");
-          myStepper.step(stepsPerRevolution);
+          servo360Micro_1.writeMicroseconds(1820); // clockwise
+          delay(195); // time delay of 195ms with speed of 1180 is a quarter (360) turn of the servo
+          servo360Micro_1.writeMicroseconds(1500); // stopped
         }
       }
       menuOption = menu();
     }
     else if(menuOption == '2') {
-      // Step one revolution in one direction:
-      Serial.println("clockwise");
-      myStepper.step(stepsPerRevolution);
-      delay(500);
+      servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
+      delay(195); // time delay of 195ms with speed of 1180 is a quarter (360) turn of the servo
+      servo360Micro_1.writeMicroseconds(1500); // stopped
+      delay(1000);
       
-      // Step one revolution in the other direction:
-      Serial.println("counterclockwise");
-      myStepper.step(-stepsPerRevolution);
-      delay(500);
+      servo360Micro_1.writeMicroseconds(1180);
+      delay(195);
+      servo360Micro_1.writeMicroseconds(1500);
+      delay(1000);
+      
+      servo360Micro_1.writeMicroseconds(1180);
+      delay(195);
+      servo360Micro_1.writeMicroseconds(1500);
+      delay(1000);
+      
+      servo360Micro_1.writeMicroseconds(1180);
+      delay(195);
+      servo360Micro_1.writeMicroseconds(1500);
+      delay(1000);
 
+      menuOption = menu();
+    }
+    else if(menuOption == '3') {
+      servo360Micro_2.writeMicroseconds(1180); // set servo speed (counter clockwise)
+      delay(397); // time delay of 397ms with speed of 1180 is a half (360) turn of the servo
+      servo360Micro_2.writeMicroseconds(1500); // stopped
+      delay(1500);
+
+      servo360Micro_2.writeMicroseconds(1790); // counter clockwise
+      delay(390); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo
+      servo360Micro_2.writeMicroseconds(1500); // stopped
       menuOption = menu();
     }
 
@@ -85,7 +110,8 @@ char menu()
 
     Serial.println(F("\nWhich component would you like to test?"));
     Serial.println(F("(1) Ultrasonic Sensor - HC-SR04"));
-    Serial.println(F("(2) Stepper Motor"));
+    Serial.println(F("(2) FS90R Servo Motor #1"));
+    Serial.println(F("(3) FS90R Servo Motor #2"));
     Serial.println(F("(menu) send anything else or press on board reset button\n"));
     while (!Serial.available());
 
@@ -98,7 +124,9 @@ char menu()
           if(c == '1') 
     			  Serial.println(F("Now Testing Ultrasonic Sensor - HC-SR04"));
     		  else if(c == '2') 
-    			  Serial.println(F("Now Testing Stepper Motor"));
+    			  Serial.println(F("Now Testing FS90R Servo Motor #1"));
+          else if(c == '3') 
+            Serial.println(F("Now Testing FS90R Servo Motor #2"));
           else
           {
             Serial.println(F("illegal input!"));
