@@ -8,7 +8,7 @@ How to run:
 	The "Main" folder contains the Arduino related files.
 	1. In the "Main" folder, open "Main.ino" with Arduino IDE
 	2. Load the file to the Arduino. The Arduino should be setup similarly to "arduinoToRpi4V2.png"
-	3. With Python3, run "testArduinoCode.py" that's found back in the "ArduinoCode" directory
+	3. With Python3, run "testArduinoCode.py" that's found back in the "testRpiFiles" directory
 	4. You should now see a menu a the Python console. Follow the prompts to test which component.
 
 

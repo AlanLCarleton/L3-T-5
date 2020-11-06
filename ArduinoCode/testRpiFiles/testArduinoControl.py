@@ -4,7 +4,7 @@ import serial
 if __name__ == '__main__':
     ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
     ser.flush()
-    
+
     while True:
         print("\nWhich component would you like to test?\n")
         print("(1) Ultrasonic Sensor - HC-SR04\n")
