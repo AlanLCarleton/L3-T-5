@@ -65,7 +65,6 @@ void loop()
           servo360Micro_1.writeMicroseconds(1500); // stopped
         }
       }
-      menuOption = menu();
     }
     else if(menuOption == '2') {
       Serial.println("clockwise");
@@ -76,8 +75,6 @@ void loop()
       Serial.println("counterclockwise");
       myStepper.step(-stepsPerRevolution);
       delay(500);
-
-      menuOption = menu();
     }
     else if(menuOption == '3') {
       servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
@@ -88,7 +85,6 @@ void loop()
       servo360Micro_1.writeMicroseconds(1790); // counter clockwise
       delay(390); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo
       servo360Micro_1.writeMicroseconds(1500); // stopped
-      menuOption = menu();
     }
 
     menuOption = menu();
@@ -114,9 +110,9 @@ char menu()
         if (isAlphaNumeric(c)) 
         {
           if(c == '1') 
-    			  Serial.println(F("Now Testing Ultrasonic Sensor - HC-SR04"));
-    		  else if(c == '2') 
-    			  Serial.println(F("Now Testing Stepper Motor"));
+            Serial.println(F("Now Testing Ultrasonic Sensor - HC-SR04"));
+          else if(c == '2') 
+    	    Serial.println(F("Now Testing Stepper Motor"));
           else if(c == '3') 
             Serial.println(F("Now Testing FS90R Servo Motor"));
           else
