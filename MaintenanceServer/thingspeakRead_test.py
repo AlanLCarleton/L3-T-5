@@ -4,28 +4,24 @@ import threading
 import json
 
 
-def read_data_thingspeak():
-    URL='https://api.thingspeak.com/channels/1158535/fields/1.json?api_key='
-    KEY='RAKH5HJNI61IOO4B'
-    HEADER='&results=2'
+def read_level(channelID):
+    URL="https://api.thingspeak.com/channels/" + str(channelID) + "/feeds.json?api_key="
+    KEY='MG9FWWZOG8M0PCGK'
+    HEADER='&results=1'
     NEW_URL=URL+KEY+HEADER
     print(NEW_URL)
 
     get_data=requests.get(NEW_URL).json()
-    #print(get_data)
-    #channel_id=get_data['channel']['id']
 
-    feeds=get_data['feeds']
-    #print(feeds)
-
-    t=[]
+    feeds=get_data['feeds'][0]
     
-    for feed in feeds:
-        print(feed['field1'])
-        t.append(feed['field1'])
-    
-    print(t)
+    print(feeds)
 
+    print(feeds["field2"])
+    print(feeds["field3"])
+    print(feeds["field4"])
+    
+    
 if __name__ == '__main__':
-    read_data_thingspeak()
+    read_level(1222563)
 
