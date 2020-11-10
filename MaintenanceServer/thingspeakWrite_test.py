@@ -1,6 +1,6 @@
 import http.client
 import urllib.parse
-import time
+from time import sleep
 
 key_WS_1 = "BLT9N7F99578BAAM"
 def update_levels(channel_key, level1, level2, level3):
@@ -16,6 +16,8 @@ def update_levels(channel_key, level1, level2, level3):
         except:
             print("connection failed")
         break
+
+        sleep(2)
 if __name__ == "__main__":
     while True:
         update_levels(key_WS_1, 1.1, 2.2, 3.3)
