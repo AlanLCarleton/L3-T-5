@@ -48,7 +48,7 @@ void setup()
 // Main logic of circuit
 void loop() 
 {
-    if(menuOption == '1') {
+    if(menuOption == '1') { //Testing Ultrasonic Sensor - HC-SR04"
       // Ultrasonic Sensor - HC-SR04 - Test Code
       // Read distance measurment from UltraSonic sensor
       int hcsr04Dist = hcsr04.ping_cm();
@@ -68,20 +68,18 @@ void loop()
       }
       Serial.print("stop");
     }
-    else if(menuOption == '2') {
+    else if(menuOption == '2') { //testing ThingSpeak read (done in testArduinoControl.py)
       
     }
-    else if(menuOption == '3') {
-      //Serial.println("clockwise");
+    else if(menuOption == '3') { //Testing Stepper Motor
       myStepper.step(stepsPerRevolution);
       delay(500);
 
       // Step one revolution in the other direction:
-      //Serial.println("counterclockwise");
       myStepper.step(-stepsPerRevolution);
       delay(500);
     }
-    else if(menuOption == '4') {
+    else if(menuOption == '4') { //Testing FS90R Servo Motor
       servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
       delay(397); // time delay of 397ms with speed of 1180 is a half (360) turn of the servo
       servo360Micro_1.writeMicroseconds(1500); // stopped
