@@ -3,6 +3,9 @@ Arduino relate things are found in this directory
 "ArduinoCode" contains some test experiments with sensors and actuators that will be used.
 "arduinoToRpi4V2.png" is the Arduino setup required to run these tests
 
+***NEW***
+The folder "mainV2" contains test code for testing the waste station in operation (i.e. components run in sequence)
+Running these tests is the same process as mentioned below.
 
 Features:
 	- Test reading data from ultrasonic sensor, then sending data to ThingSpeak. This test runs for around 18s and writes to ThingSpeak every 5s.
