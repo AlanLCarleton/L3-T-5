@@ -22,7 +22,7 @@ def readThingspeakData():
 
 
 if __name__ == '__main__':
-    ser = serial.Serial('/dev/cu.usbmodem14201', 9600, timeout=1)
+    ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
     ser.flush()
 
     while True:
@@ -33,10 +33,10 @@ if __name__ == '__main__':
         option = str(input())
         ser.write(option.encode('utf-8'))
 
-        if (option == '1' or option == '2'):  # Writing UltraSonic sensor data
+        if (option == '1' or option == '2'): 
             ser.flush()
             while True:
-                line = ser.readline().decode('utf-8').rstrip()
+                line = ser.readline().decode('utf-8')
                 #only take non blank data from serial com
                 if (line != ''):
                     try:
@@ -46,4 +46,4 @@ if __name__ == '__main__':
                         break
                     print("Distance from Ultrasonic Sensor: %dcm" % fullness)
                     #write data to ThingSpeak (arbitrary values for bins 1, 2, 3)
-                    writeToThingSpeak(fullness)
+                    #writeToThingSpeak(fullness)
