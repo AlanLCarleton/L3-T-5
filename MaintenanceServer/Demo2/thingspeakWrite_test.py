@@ -2,6 +2,7 @@ import http.client
 import urllib.parse
 from time import sleep
 
+# write keys of three channals
 key_WS_1 = "BLT9N7F99578BAAM"
 key_WS_2 = "GDHEA7VGR18FXYSU"  
 key_WS_3 = "KBQ5HYT7A32U1TQK" 
