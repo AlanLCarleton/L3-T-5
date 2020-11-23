@@ -5,8 +5,10 @@ import json
 import sqlite3
 from time import sleep
 
-
+# keys of three channals
 stationNumber2channelID_key = {1: ['1222563','MG9FWWZOG8M0PCGK'], 2: ['1222564','TICC7ZFTEDZOPZ4F'], 3: ['1222565','A6YJ6ETTQ38WWHBN']}
+
+# last retrieved levels of three waste stations
 lastLevels = {1:[0,0,0], 2:[0,0,0],3:[0,0,0]}
 
 def get_levels(stationNumber):
@@ -22,7 +24,6 @@ def get_levels(stationNumber):
     currentLevel = [int(feeds["field2"]),int(feeds["field3"]),int(feeds["field4"])]
     print (lastLevels[stationNumber])
     print (currentLevel)
-    
     
     dbconnect = sqlite3.connect("maintenanceDB.db");
     dbconnect.row_factory = sqlite3.Row;

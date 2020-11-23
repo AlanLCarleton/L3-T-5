@@ -10,9 +10,9 @@ def main():
     cursor = dbconnect.cursor();
     cursor.execute('SELECT * FROM StationStatus');
     
+    #retrive data from db and put them into a list
     for row in cursor:
         data.append([row['StationLocation'],row['Bin1'],row['Bin2'],row['Bin3']])
-    
     
     assert data[0] == [1, 20, 30, 15], "The first recond in DB should be [1, 20, 30, 15]"
     assert data[1] == [2, 50, 60, 20], "The second recond in DB should be [2, 50, 60, 20]"
