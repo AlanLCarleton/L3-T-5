@@ -26,7 +26,12 @@ How to run:
 		4.1.	To quickly test the system, you can run the function 'testStation'
 		4.2.	'activateStation' is the function you need to call for triggering the Arduino
 
-
+Additional Notes:
+	- Using "runStation.py" without having an device that's connected via a Serial connection will present an error
+	- Not setting the correct port in "runStation.py" will present an error (see instruction 3.2. above)
+	- "mainV3" code has lots of "delay" to accomedate with Serial communication delays
+		- Needs improvement
+		
 Sources:
 	- Ultrasonic sensor uses code from NewPing Library:
 		AUTHOR/LICENSE: Tim Eckel - teckel@leethost.com
