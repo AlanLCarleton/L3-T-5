@@ -46,57 +46,39 @@ void loop()
 {
   //Testing station regular operation
   if(menuOption == '1') {
-    // 1. Read distance measurment from UltraSonic sensor
+    // Read distance measurment from UltraSonic sensor
     int hcsr04Dist = hcsr04.ping_cm();
     Serial.println(hcsr04Dist);
     delay(2000);
 
     //only perform actuations if selected bin is not full (3 is an arbitrary max fullness value)
     if (hcsr04Dist > 3) {
-      // 2. Rotate internal divider accordingly
-      // Trigger stepper motor to rotate for a quarter of full rotation:
-      myStepper.step(stepsPerRevolution);
-      delay(500);
-  
-      // 3. Open station's lid
-      servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
-      delay(397); // time delay of 397ms with speed of 1180 is a half (360) turn of the servo
-      servo360Micro_1.writeMicroseconds(1500); // stopped
-      delay(100);
-  
-      // 4.Close station's lid (after UltraSonic sensor trigger or timeout)
-      bool deposited = false;
-      int hcsr04Dist2;
-      do { //lid closes either on timeout or fullness increases
-        hcsr04Dist2 = hcsr04.ping_cm();
-        delay(50);
-        if (hcsr04Dist > hcsr04Dist2) deposited = true;
-      } while (!deposited && time0 + timeout > millis());
-      
-      Serial.println(hcsr04Dist2);
-      delay(2000);
-      //closing lid
-      servo360Micro_1.writeMicroseconds(1790); // counter clockwise to close lid
-      delay(390); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo
-      servo360Micro_1.writeMicroseconds(1500); // stopped
-      delay(100);
+      actuatorsRun(hcsr04Dist);
     }
     Serial.println("stop");
     delay(3000);
   }
-  //Testing station operation with a simulated full bin
-  else if(menuOption == '2') {
-    // Read distance measurment from UltraSonic sensor (hard coded)
-    int hcsr04Dist = 2;
-    Serial.println(hcsr04Dist);
-    delay(2000);
-    if (hcsr04Dist < 3) { //stop if bin is full (3 is an arbitrary max fullness value)
-      Serial.println("stop");
-      delay(3000);
+  //Testing station operation with a simulated cans/bottles bin (not full)
+  else if (menuOption == '2' || menuOption == '3' || menuOption == '4') {
+    int hcsr04DistSim;
+    switch(menuOption) {
+      case '2': hcsr04DistSim = 50; //not full
+      case '3': hcsr04DistSim = 0; //full
+      case '4': hcsr04DistSim = 75; //not full
     }
+    Serial.println(hcsr04DistSim);
+    delay(2000);
+
+    //only perform actuations if selected bin is not full (3 is an arbitrary max fullness value)
+    if (hcsr04DistSim > 3) {
+      actuatorsRun(hcsr04DistSim);
+    }
+    Serial.println("stop");
+    delay(3000);
   }
   menuOption = menu();      
 }
+
 
 // Menu function for selecting the components to be tested
 // Follow serial monitor for instrcutions
@@ -112,4 +94,36 @@ char menu()
       return c;
     }
   }
+}
+
+
+void actuatorsRun(int initFullness)
+{
+  // 1. Rotate internal divider accordingly
+  // Trigger stepper motor to rotate for a quarter of full rotation:
+  myStepper.step(stepsPerRevolution);
+  delay(500);
+  
+  // 2. Open station's lid
+  servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
+  delay(397); // time delay of 397ms with speed of 1180 is a half (360) turn of the servo
+  servo360Micro_1.writeMicroseconds(1500); // stopped
+  delay(100);
+  
+  // 3.Close station's lid (after UltraSonic sensor trigger or timeout)
+  bool deposited = false;
+  int hcsr04Dist2;
+  do { //lid closes either on timeout or fullness increases
+    hcsr04Dist2 = hcsr04.ping_cm();
+    delay(50);
+    if (initFullness > hcsr04Dist2) deposited = true;
+  } while (!deposited && time0 + timeout > millis());
+      
+  Serial.println(hcsr04Dist2);
+  delay(2000);
+  //closing lid
+  servo360Micro_1.writeMicroseconds(1790); // counter clockwise to close lid
+  delay(390); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo
+  servo360Micro_1.writeMicroseconds(1500); // stopped
+  delay(100);
 }
