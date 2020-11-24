@@ -1,24 +1,30 @@
 Arduino relate things are found in this directory
 
-"ArduinoCode" contains some test experiments with sensors and actuators that will be used.
+"ArduinoCode" contains Arduino code for recieving and triggering data from the sensors and actuators.
 "arduinoToRpi4V2.png" is the Arduino setup required to run these tests
 
-***NEW***
-The folder "mainV2" contains test code for testing the waste station in operation (i.e. components run in sequence)
-Running these tests is the same process as mentioned below.
+The folder "mainV3" contains code for running the waste station in operation (i.e. components run in sequence)
+The Python script "runStation.py" is used to call the Arduino to perform operations
 
 Features:
-	- Test reading data from ultrasonic sensor, then sending data to ThingSpeak. This test runs for around 18s and writes to ThingSpeak every 5s.
-	- Test reading data from ThingSpeak channel. This test runs for around 18s and reads from ThingSpeak every 5s.
-	- Test the stepper motor. Rotates the stepper motor clockwise and anti-clockwise.
-	- Test the servo. Rotates the servo arm.
+	- Reading data from ultrasonic sensor, then sending data to ThingSpeak.
+		- Data is read and sent before user drops item in station's bin.
+		- Data is read and sent after user drops item in station's bin.
+	- Stepper motor rotates the internal funnel to line up to selected bin.
+	- Servo motor rotates to open and close the station's lid.
 
 How to run:
 	The "ArduinoCode" folder contains the Arduino related files.
-	1. In the "main" folder (inside ("ArduinoCode"), open "Main.ino" with Arduino IDE
+	1. In the "mainV3" folder (inside ("ArduinoCode"), open "Main.ino" with Arduino IDE
 	2. Load the file to the Arduino. The Arduino should be setup similarly to "arduinoToRpi4V2.png"
-	3. With Python3, run "testArduinoCode.py" that's found back in the "ArduinoCode" directory
-	4. You should now see a menu a the Python console. Follow the prompts to test which component.
+	3. With Python3, import "runStation.py" that's found back in the "ArduinoCode" directory
+		3.1.	"blankTestScript.py" contains an example of this usage
+		3.2. 	In "runStation.py" on line 128, '/dev/ttyACM0' might needs to be changed.
+				This is the port that the Arduino board is connected to.
+				For example, if the board is connected to ACM1, then it should be '/dev/ttyACM1'
+	4. Now you're ready to call the functions found in "runStation.py"
+		4.1.	To quickly test the system, you can run the function 'testStation'
+		4.2.	'activateStation' is the function you need to call for triggering the Arduino
 
 
 Sources:
