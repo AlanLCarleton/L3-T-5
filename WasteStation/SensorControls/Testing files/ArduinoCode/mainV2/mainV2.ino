@@ -69,6 +69,7 @@ void loop()
       int hcsr04Dist2;
       do { //lid closes either on timeout or fullness increases
         hcsr04Dist2 = hcsr04.ping_cm();
+        delay(50);
         if (hcsr04Dist > hcsr04Dist2) deposited = true;
       } while (!deposited && time0 + timeout > millis());
       
