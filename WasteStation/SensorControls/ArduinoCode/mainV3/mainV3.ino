@@ -4,6 +4,7 @@
 #include "NewPing.h"
 #include "Servo.h"
 #include <Stepper.h>
+#include <stdlib.h>
 
 // Pin Definitions
 #define HCSR04_PIN_TRIG	3
@@ -44,38 +45,47 @@ void setup()
 // Main logic of circuit
 void loop() 
 {
-  //Testing station regular operation
+  //operation with real values from ultrasonicsensor in bin 1
   if(menuOption == '1') {
     // Read distance measurment from UltraSonic sensor
     int hcsr04Dist = hcsr04.ping_cm();
     Serial.println(hcsr04Dist);
-    delay(2000);
+    delay(3000);
 
     //only perform actuations if selected bin is not full (3 is an arbitrary max fullness value)
     if (hcsr04Dist > 3) {
-      actuatorsRun(hcsr04Dist);
+      actuatorsRun(hcsr04Dist, false);
     }
     Serial.println("stop");
-    delay(3000);
+    delay(3200);
   }
-  //Testing station operation with a simulated cans/bottles bin (not full)
-  else if (menuOption == '2' || menuOption == '3' || menuOption == '4') {
-    int hcsr04DistSim;
+  //operation with simulated values for bins 2, 3, 4
+  else {
+    int hcsr04DistSim = 0;
+    //setting values for the selected simulate bin
     switch(menuOption) {
-      case '2': hcsr04DistSim = 50; //not full
-      case '3': hcsr04DistSim = 0; //full
-      case '4': hcsr04DistSim = 75; //not full
+      case '2':
+        hcsr04DistSim = 50; //not full
+        break;
+      case '3':
+        hcsr04DistSim = 0; //full
+        break;
+      case '4':
+        hcsr04DistSim = 75; //not full
+        break;
     }
+    
     Serial.println(hcsr04DistSim);
-    delay(2000);
+    delay(3000);
 
     //only perform actuations if selected bin is not full (3 is an arbitrary max fullness value)
     if (hcsr04DistSim > 3) {
-      actuatorsRun(hcsr04DistSim);
+      actuatorsRun(hcsr04DistSim, true);
     }
     Serial.println("stop");
-    delay(3000);
+    delay(3200);
   }
+  
   menuOption = menu();      
 }
 
@@ -96,8 +106,15 @@ char menu()
   }
 }
 
-
-void actuatorsRun(int initFullness)
+/**
+ * Trigger actuators in waste station
+ * Rotates internal divider, opens lid, then close lid
+ *    
+ * param initFullness:  the initial fullness measurement on the bin (from ultrasonic sensor or simulated value)   
+ * param simBin:        true if using a simulated bin (i.e. no use of ultrasonic sensor)
+ *
+ */
+void actuatorsRun(int initFullness, bool simBin)
 {
   // 1. Rotate internal divider accordingly
   // Trigger stepper motor to rotate for a quarter of full rotation:
@@ -113,14 +130,18 @@ void actuatorsRun(int initFullness)
   // 3.Close station's lid (after UltraSonic sensor trigger or timeout)
   bool deposited = false;
   int hcsr04Dist2;
+
+  if (simBin) hcsr04Dist2 = initFullness - (rand() % 5) + 1;
   do { //lid closes either on timeout or fullness increases
-    hcsr04Dist2 = hcsr04.ping_cm();
+    if (!simBin){
+      hcsr04Dist2 = hcsr04.ping_cm();
+    }
     delay(50);
     if (initFullness > hcsr04Dist2) deposited = true;
   } while (!deposited && time0 + timeout > millis());
       
   Serial.println(hcsr04Dist2);
-  delay(2000);
+  delay(2500);
   //closing lid
   servo360Micro_1.writeMicroseconds(1790); // counter clockwise to close lid
   delay(390); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo

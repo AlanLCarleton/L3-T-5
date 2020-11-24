@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import serial
-import time
-import json
 import urllib.request
 
 '''
@@ -28,19 +26,21 @@ def writeToThingSpeak(tsKey, binNum, value):
     #tsKey = 'BLT9N7F99578BAAM'  # Write API Key (Station 1)
     fieldNum = 'field' + str(binNum+1)
     HEADER = ('&%s=%d' % (fieldNum, value))
-    print(HEADER)
+    #print(HEADER)
     FULL_URL = URL + tsKey + HEADER  # URL for the get request
 
     return urllib.request.urlopen(FULL_URL).read()
 
 
-DEBUG = False
+#Set this to True to have the fullness value be printed
+DEBUG = True
+
 def activateStation(tsKey, whichBin):
     '''
         Function for activating user selected bin from waste station GUI
             Will trigger the chosen bin to check if it's full, then set the internal funnelling sytem to the
             selected bin. The station's main lid will be actuated to open, then wait for user to dispose item.
-            After which the station;s lid will close and the new fullness status will be uploaded to ThingSpeak.
+            After which the station's lid will close and the new fullness status will be uploaded to ThingSpeak.
         
         Param whichBin: The specific bin in the station
                             1 = Garbage Bin
@@ -51,21 +51,24 @@ def activateStation(tsKey, whichBin):
         Return: 1 = Success
                 0 = Failure
     '''
-    ser.flush()
-
+    #ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+    #ser.flush()
+    
     while True:
         if (whichBin == 1 or whichBin == 2 or whichBin == 3 or whichBin == 4):
-            ser.write(whichBin.encode('utf-8'))
+            #write value to Arduino via serial
+            ser.write(str(whichBin).encode('utf-8'))
 
             ser.flush()
             while True:
+                #read value from Arduino
                 line = ser.readline().decode('utf-8')
                 #only take non blank data from serial com
                 if (line != ''):
                     try:
                         fullness = int(line)
                     except:
-                        #we're done reading
+                        #if value from Arduin is not an int, then we're done reading
                         break
                     #write data to ThingSpeak
                     thingSpeakReturn = writeToThingSpeak(tsKey, int(whichBin), fullness)
@@ -80,22 +83,33 @@ def activateStation(tsKey, whichBin):
             return 0
 
 def testStation():
+    '''
+        Function for testing activation of waste station's bins
+            Options to choose which bin to test will be displayed. After entering a selection.
+            the chosen bin will be triggered to check if it's full, then set the internal funnelling sytem to the
+            selected bin. The station's main lid will be actuated to open, then wait for user to dispose item.
+            After which the station's lid will close.
+
+        Return: 1 = Success
+    '''
     ser.flush()
     
     while True:
         print("\nWhich bin in the station would you like to use?\n")
-        print("(1) Garbage Bin\n")
-        print("(2) Cans/Bottles Bin\n")
-        print("(3) Papers Bin\n")
-        print("(4) Compost Bin\n")
+        print("(1) Garbage Bin")
+        print("(2) Cans/Bottles Bin")
+        print("(3) Papers Bin")
+        print("(4) Compost Bin")
         print("(5) To Exit Test\n")
 
         whichBin = str(input())
+        #write value to Arduino via serial
         ser.write(whichBin.encode('utf-8'))
 
         if (whichBin == '1' or whichBin == '2' or whichBin == '3' or whichBin == '4'):
             ser.flush()
             while True:
+                #read value from Arduino
                 line = ser.readline().decode('utf-8')
                 #only take non blank data from serial com
                 if (line != ''):
@@ -111,5 +125,5 @@ def testStation():
         else: print ("Invalid menu choice. Please selected one of the following below:\n")
 
 
-ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
+ser = serial.Serial('/dev/ttyACM0', 9600, timeout=2)
 ser.flush()
