@@ -11,29 +11,29 @@ import urllib.request
     testStation         Function for testing the station's bins.
 '''
 
+#Set this to True to have the fullness value be printed
+DEBUG = True
 
-def writeToThingSpeak(tsKey, binNum, value):
+
+def writeToThingSpeak(tsKey, binNum, fullness):
     '''
         Function to send data to specific ThingSpeak channel
 
         Param tsKey: The ThingSpeak channel API key that's being used
         Param binNum: The specific bin in the station
-        Param value: The fullness value of the bin
+        Param fullness: The fullness value of the bin
 
         Return: ThingSpeak URL GET request
     '''
     URL = 'https://api.thingspeak.com/update?api_key='
     #tsKey = 'BLT9N7F99578BAAM'  # Write API Key (Station 1)
     fieldNum = 'field' + str(binNum+1)
-    HEADER = ('&%s=%d' % (fieldNum, value))
+    HEADER = ('&%s=%d' % (fieldNum, fullness))
     #print(HEADER)
     FULL_URL = URL + tsKey + HEADER  # URL for the get request
 
     return urllib.request.urlopen(FULL_URL).read()
 
-
-#Set this to True to have the fullness value be printed
-DEBUG = True
 
 def activateStation(tsKey, whichBin):
     '''
@@ -51,36 +51,24 @@ def activateStation(tsKey, whichBin):
         Return: 1 = Success
                 0 = Failure
     '''
-    #ser = serial.Serial('/dev/ttyACM1', 9600, timeout=1)
-    #ser.flush()
     
     while True:
-        if (whichBin == 1 or whichBin == 2 or whichBin == 3 or whichBin == 4):
-            #write value to Arduino via serial
-            ser.write(str(whichBin).encode('utf-8'))
-
-            ser.flush()
-            while True:
-                #read value from Arduino
-                line = ser.readline().decode('utf-8')
-                #only take non blank data from serial com
-                if (line != ''):
-                    try:
-                        fullness = int(line)
-                    except:
-                        #if value from Arduin is not an int, then we're done reading
-                        break
-                    #write data to ThingSpeak
-                    thingSpeakReturn = writeToThingSpeak(tsKey, int(whichBin), fullness)
-                    if (DEBUG):
-                        print("Distance from Ultrasonic Sensor: %dcm" % fullness)
-                        print("Return from ThingSpeak write:\n", thingSpeakReturn)
-            return 1
+        if (whichBin in [1, 2, 3, 4]):
+            # retrive bins new fullness value
+            fullness = arduinoComm(whichBin)
+            # only update ThingSpeak if the Arduino actually returned a vlaue
+            if fullness is not None:
+                #write data to ThingSpeak
+                thingSpeakReturn = writeToThingSpeak(tsKey, int(whichBin), fullness)
+                if (DEBUG):
+                    print("Distance from Ultrasonic Sensor: %dcm" % fullness)
+                    print("Return from ThingSpeak write:\n", thingSpeakReturn)
+                return 1
         else:
             if (DEBUG):
                 print('Invalid bin entry\n')
-            
             return 0
+
 
 def testStation():
     '''
@@ -103,27 +91,50 @@ def testStation():
         print("(5) To Exit Test\n")
 
         whichBin = str(input())
-        #write value to Arduino via serial
-        ser.write(whichBin.encode('utf-8'))
 
-        if (whichBin == '1' or whichBin == '2' or whichBin == '3' or whichBin == '4'):
-            ser.flush()
-            while True:
-                #read value from Arduino
-                line = ser.readline().decode('utf-8')
-                #only take non blank data from serial com
-                if (line != ''):
-                    try:
-                        fullness = int(line)
-                    except:
-                        #we're done reading
-                        break
-                    print("Distance from Ultrasonic Sensor: %dcm" % fullness)
+        if (whichBin in ['1', '2', '3', '4']):
+            # retrive bins new fullness value
+            fullness = arduinoComm(whichBin)
+
+            if fullness is not None:
+                print("Distance from Ultrasonic Sensor: %dcm" % fullness)
         elif (whichBin == '5'):
             print("Exiting test function...\n")
             return 1
         else: print ("Invalid menu choice. Please selected one of the following below:\n")
 
+
+def arduinoComm(whichBin):
+    '''
+        Function for communication with Arduino via Serial connection
+            Sends data (commands) to the Arduino in which the Arduino will
+            send back results (fullness value).
+        
+        Param whichBin: The specific bin in the station
+                            1 = Garbage Bin
+                            2 = Cans/Bottles Bin  
+                            3 = Papers Bin
+                            4 = Compost Bin
+
+        Return: fullness The new fullness value of the bin after performing its operation
+    '''
+    #write value to Arduino via serial
+    ser.write(str(whichBin).encode('utf-8'))
+    ser.flush()
+
+    fullness = None
+    while True:
+        #read value from Arduino
+        line = ser.readline().decode('utf-8')
+        #only take non blank data from serial com
+        if (line != ''):
+            try:
+                fullness = int(line)
+            except:
+                #if value from Arduin is not an int, then we're done reading
+                break
+            
+    return fullness
 
 ser = serial.Serial('/dev/ttyACM0', 9600, timeout=2)
 ser.flush()
