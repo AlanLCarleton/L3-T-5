@@ -59,8 +59,8 @@ void loop()
       delay(500);
   
       // 3. Open station's lid
-      servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
-      delay(397); // time delay of 397ms with speed of 1180 is a half (360) turn of the servo
+      servo360Micro_1.writeMicroseconds(1790); // counter clockwise to close lid
+      delay(210); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo
       servo360Micro_1.writeMicroseconds(1500); // stopped
       delay(100);
   
@@ -76,8 +76,8 @@ void loop()
       Serial.println(hcsr04Dist2);
       delay(2000);
       //closing lid
-      servo360Micro_1.writeMicroseconds(1790); // counter clockwise to close lid
-      delay(390); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo
+      servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
+      delay(160); // time delay of 397ms with speed of 1180 is a half (360) turn of the servo
       servo360Micro_1.writeMicroseconds(1500); // stopped
       delay(100);
     }
