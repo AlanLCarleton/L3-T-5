@@ -142,11 +142,11 @@ void actuatorsRun(char bin, int initFullness, bool simBin)
   }
   
   // 2. Open station's lid
-  servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
-  delay(397); // time delay of 397ms with speed of 1180 is a half (360) turn of the servo
+  servo360Micro_1.writeMicroseconds(1790); // counter clockwise to close lid
+  delay(210); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo
   servo360Micro_1.writeMicroseconds(1500); // stopped
   delay(100);
-  
+      
   // 3.Close station's lid (after UltraSonic sensor trigger or timeout)
   bool deposited = false;
   int hcsr04Dist2;
@@ -163,8 +163,8 @@ void actuatorsRun(char bin, int initFullness, bool simBin)
   Serial.println(hcsr04Dist2);
   delay(2500);
   //closing lid
-  servo360Micro_1.writeMicroseconds(1790); // counter clockwise to close lid
-  delay(390); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo
+  servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
+  delay(160); // time delay of 397ms with speed of 1180 is a half (360) turn of the servo
   servo360Micro_1.writeMicroseconds(1500); // stopped
   delay(100);
 
