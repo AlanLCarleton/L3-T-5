@@ -6,15 +6,14 @@
 #include <Stepper.h>
 #include <stdlib.h>
 
-// Pin Definitions
+// Pin Definitions and Constants
 #define HCSR04_PIN_TRIG	3
 #define HCSR04_PIN_ECHO	2
 #define SERVO360MICRO_1_PIN_SIG  5
 
-
 // Global variables and defines
-// define vars for testing menu
-const int timeout = 6000;       //define timeout of 6 sec
+const int TIMEOUT = 6000;       //define timeout of 6 sec
+const int BINDEPTH = 100; //bin depth is set to 100cm
 char binNum = 0;
 long time0;
 // number of steps per stepper motor rotation:
@@ -48,44 +47,6 @@ void setup()
 
 
 /** 
- * Main logic of circuit
- **/
-void loop() 
-{
-  int hcsr04Dist = 0;
-  if(binNum == '1') { //operation with real values from ultrasonicsensor in bin 1
-    // Read distance measurment from UltraSonic sensor
-    hcsr04Dist = hcsr04.ping_cm();
-  } else {  //operation with simulated values for bins 2, 3, 4
-    switch(binNum) {
-      case '2':
-        hcsr04Dist = 50; //not full
-        break;
-      case '3':
-        hcsr04Dist = 0; //full
-        break;
-      case '4':
-        hcsr04Dist = 75; //not full
-        break;
-    }
-  }
-  Serial.println(hcsr04Dist);
-  delay(3000);
-
-  //only perform actuations if selected bin is not full (3 is an arbitrary max fullness value)
-  if (hcsr04Dist > 3) {
-    //only bin 1 in my testing is a 'real' bin
-    actuatorsRun(binNum, hcsr04Dist, binNum != '1');
-  }
-  Serial.println("stop");
-  delay(3200);
-
-  
-  binNum = waitForRequest();      
-}
-
-
-/** 
  * Function for waiting for data from serial connection
  *
  **/
@@ -102,6 +63,24 @@ char waitForRequest()
     }
   }
 }
+
+
+/**
+ * Converts ultrasonic sensore distance measurement to a fullness percentage
+ * BINDEPTH can be changed in the constants to reflect actual bin depth
+ * 
+ * param hsrcDist: Distance measurement from ultrasonic sensor in cm
+ * 
+ * return the bin's fullness percentage (int)
+ */
+int convertFullness(int hcsrDist)
+{
+  //Assuming bin depth is 100cm. The closer the ultra sonic sensor measures, the fuller the bin
+  //If sensor measures 100cm, the bin is completly empty (initialFullness = 0)
+  //If sensor measures 5cm, the bin is almost full (initialFullness = 95)
+  return hcsrDist<=BINDEPTH ? BINDEPTH-hcsrDist : 0;
+}
+
 
 /**
  * Trigger actuators in waste station
@@ -158,9 +137,9 @@ void actuatorsRun(char bin, int initFullness, bool simBin)
     }
     delay(50);
     if (initFullness > hcsr04Dist2) deposited = true;
-  } while (!deposited && time0 + timeout > millis());
+  } while (!deposited && time0 + TIMEOUT > millis());
       
-  Serial.println(hcsr04Dist2);
+  Serial.println(convertFullness(hcsr04Dist2));
   delay(2500);
   //closing lid
   servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
@@ -190,4 +169,43 @@ void actuatorsRun(char bin, int initFullness, bool simBin)
       delay(500);
       break;
   }
+}
+
+
+/** 
+ * Main logic of circuit
+ **/
+void loop() 
+{
+  int hcsr04Dist = 0;
+  if(binNum == '1') { //operation with real values from ultrasonicsensor in bin 1
+    // Read distance measurment from UltraSonic sensor
+    hcsr04Dist = hcsr04.ping_cm();
+  } else {  //operation with simulated values for bins 2, 3, 4
+    switch(binNum) {
+      case '2':
+        hcsr04Dist = 50; //not full
+        break;
+      case '3':
+        hcsr04Dist = 0; //full
+        break;
+      case '4':
+        hcsr04Dist = 75; //not full
+        break;
+    }
+  }
+
+  Serial.println(convertFullness(hcsr04Dist));
+  delay(3000);
+
+  //only perform actuations if selected bin is not full (3 is an arbitrary max fullness value)
+  if (hcsr04Dist > 3) {
+    //only bin 1 in my testing is a 'real' bin
+    actuatorsRun(binNum, hcsr04Dist, binNum != '1');
+  }
+  Serial.println("stop");
+  delay(3200);
+
+  
+  binNum = waitForRequest();      
 }
