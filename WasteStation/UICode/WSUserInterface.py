@@ -73,12 +73,20 @@ def getEmptyBinLocation(channel_key, channel_id, bin_id):
 	else:
 		#return None
 		return False
-
+#Tests the input checking for UI functions. Does not handle sensors as they have their own tests
 def testUIComponents():
+	#Tests chooseBin function with proper inputs
+	assert chooseBin(1, 1) == True
+
+	# Test invalid inputs to binID for chooseBin
+	assert chooseBin(0, 1) == False
+	assert chooseBin(5, 1) == False
+	assert chooseBin("Garbage", 1) == False
 	
-	assert chooseBin(1) == True
-	assert chooseBin(0) == False
-	assert chooseBin("Garbage") == False
+	#Test invalid inputs to stationID for chooseBin
+	assert chooseBin(1, 0) == False
+	assert chooseBin(1, 4) == False
+	assert chooseBin(1, "one") == False
 
 	# Test invalid inputs to binID for getEmptyBinLocation
 	assert getEmptyBinLocation('MG9FWWZOG8M0PCGK', 1222563, 1) == False
