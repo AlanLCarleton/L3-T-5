@@ -20,7 +20,8 @@ def chooseBin(binID, stationID):
 		return False
 	if(stationID < 1 or stationID > 3): # Currently there are only 3 stations
 		return False
-
+	
+	print("Starting process...")
 	result = activateStation(stationData[stationID]['channel_key'], binID)
 	
 	#Bin did not succesfully open
@@ -30,8 +31,6 @@ def chooseBin(binID, stationID):
 		return False
 	#Bin successfully opens
 	elif(result == 1):
-		print("Please begin depositing")
-		time.sleep(5)
 		return True
 	#Selected bin is full
 	elif(result == 2):
@@ -103,8 +102,9 @@ if __name__ == '__main__':
 	itemList = {
 		"Bottle" : 2,
 		"Can" : 2,
+		"Cardboard Container" : 3,
 		"Food" : 1,
-		"Cardboard Container" : 3
+		"Green Waste" : 4
 	}
 
 	print("Input Station #:")
@@ -121,6 +121,7 @@ if __name__ == '__main__':
 			print("(1) for Garbage")
 			print("(2) for Plastic")
 			print("(3) for Paper")
+			print("(4) for Compost")
 			print("(0) to go back")
 			binID = int(input())
 			if(bin_id != 0):
