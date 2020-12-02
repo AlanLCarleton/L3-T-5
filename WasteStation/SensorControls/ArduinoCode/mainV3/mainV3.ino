@@ -195,11 +195,12 @@ void loop()
     }
   }
 
-  Serial.println(convertFullness(hcsr04Dist));
+  int intialFullness = convertFullness(hcsr04Dist);
+  Serial.println(intialFullness);
   delay(3000);
 
-  //only perform actuations if selected bin is not full (3 is an arbitrary max fullness value)
-  if (hcsr04Dist > 3) {
+  //only perform actuations if selected bin is not full (not 100% full yet)
+  if (intialFullness < 100) {
     //only bin 1 in my testing is a 'real' bin
     actuatorsRun(binNum, hcsr04Dist, binNum != '1');
   }

@@ -50,6 +50,7 @@ def activateStation(tsKey, whichBin):
 
         Return: 1 = Success
                 0 = Failure
+                2 = Selected bin is full
     '''
     
     while True:
@@ -63,7 +64,8 @@ def activateStation(tsKey, whichBin):
                 if (DEBUG):
                     print("Distance from Ultrasonic Sensor: %dcm" % fullness)
                     print("Return from ThingSpeak write:\n", thingSpeakReturn)
-                return 1
+                
+                return 1 if fullness < 100 else 2
         else:
             if (DEBUG):
                 print('Invalid bin entry\n')
