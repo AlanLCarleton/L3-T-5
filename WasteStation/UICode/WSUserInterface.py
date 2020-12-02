@@ -12,16 +12,27 @@ def chooseBin(binID, stationID):
 		2 : {'channel_key' : 'TICC7ZFTEDZOPZ4F', 'channel_id': '1222564'},
 		3 : {'channel_key' : 'A6YJ6ETTQ38WWHBN', 'channel_id': '1222565'}
 	}
+
+	# Value checking for binID and staionID
+	if(not isinstance(binID, int) or not isinstance(stationID, int)):# Checks that binID and stationID are int
+		return False
+	if(binID < 1 or binID > 4): # Only 1 to 4 are valid bin IDs
+		return False
+	if(stationID < 1 or stationID > 3): # Currently there are only 3 stations
+		return False
+
 	result = activateStation(stationData[stationID]['channel_key'], binID)
 	
 	#Bin did not succesfully open
 	if(result == 0):
 		print("Something went wrong. Please try again.")
 		time.sleep(3)
+		return False
 	#Bin successfully opens
 	elif(result == 1):
 		print("Please begin depositing")
 		time.sleep(5)
+		return True
 	#Selected bin is full
 	elif(result == 2):
 		print("This bin is currently full")
@@ -29,6 +40,7 @@ def chooseBin(binID, stationID):
 			if(x != stationID):
 				if(getEmptyBinLocation(stationData[stationID]['channel_key'], stationData[stationID]['channel_id'], binID)):
 					print("This bin is currently available at Waste Station" + str(x))
+		return True
 			
 
 #returns True if bin level is below 100, else it returns False
@@ -47,6 +59,7 @@ def getEmptyBinLocation(channel_key, channel_id, bin_id):
 		station_data=requests.get(NEW_URL).json()
 	except:
 		print("Failure: No response")
+		return False
 
 	feeds = station_data['feeds'][0]
 
@@ -61,9 +74,23 @@ def getEmptyBinLocation(channel_key, channel_id, bin_id):
 		#return None
 		return False
 
+def testUIComponents():
+	
+	assert chooseBin(1) == True
+	assert chooseBin(0) == False
+	assert chooseBin("Garbage") == False
 
+	# Test invalid inputs to binID for getEmptyBinLocation
+	assert getEmptyBinLocation('MG9FWWZOG8M0PCGK', 1222563, 1) == False
+	assert getEmptyBinLocation('MG9FWWZOG8M0PCGK', 1222563, 1) == False
+	assert getEmptyBinLocation('MG9FWWZOG8M0PCGK', 1222563, 1) == False
+
+	print("Startup tests were successful")
+	
 if __name__ == '__main__':
-
+	
+	testUIComponents()
+	
 	#Each item follows the format of "Item name":"Bin ID"
 	itemList = {
 		"Bottle" : 2,
@@ -89,7 +116,9 @@ if __name__ == '__main__':
 			print("(0) to go back")
 			binID = int(input())
 			if(bin_id != 0):
-				chooseBin(binID, stationID)
+				if(chooseBin(binID, stationID)):
+					print("Returning to Option Select")
+					time.sleep(2)
 
 		#Determine bin by searching for item
 		elif(option == 2):
@@ -101,7 +130,9 @@ if __name__ == '__main__':
 				itemName = str(input())
 
 				if itemName in itemList:
-					chooseBin(itemList[itemName], stationID)
+					if(chooseBin(itemList[itemName], stationID)):
+						print("Returning to Option Select")
+						time.sleep(2)
 					break;
 				elif(itemName == "exit"):
 					break;
