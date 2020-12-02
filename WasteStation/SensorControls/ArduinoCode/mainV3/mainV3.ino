@@ -121,8 +121,8 @@ void actuatorsRun(char bin, int initFullness, bool simBin)
   }
   
   // 2. Open station's lid
-  servo360Micro_1.writeMicroseconds(1790); // counter clockwise to close lid
-  delay(210); // time delay of 390ms with speed of 1180 is a half (360) turn of the servo
+  servo360Micro_1.writeMicroseconds(1790);
+  delay(215); // time delay of 215ms with speed of 1790 is enough rotation to open lid
   servo360Micro_1.writeMicroseconds(1500); // stopped
   delay(100);
       
@@ -143,7 +143,7 @@ void actuatorsRun(char bin, int initFullness, bool simBin)
   delay(2500);
   //closing lid
   servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
-  delay(160); // time delay of 397ms with speed of 1180 is a half (360) turn of the servo
+  delay(165); // time delay of 165ms with speed of 1180 is enough rotation to close lid
   servo360Micro_1.writeMicroseconds(1500); // stopped
   delay(100);
 
