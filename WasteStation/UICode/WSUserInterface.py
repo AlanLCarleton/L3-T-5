@@ -110,19 +110,19 @@ if __name__ == '__main__':
     print("Input Station #:")
     stationID = int(input())
     while True:
-        print("Select an Option:")
-        print("(1) to select a bin")
-        print("(2) to search for an item")
+        print("\nSelect an Option:")
+        print("\t(1) to select a bin")
+        print("\t(2) to search for an item")
         option = int(input())
         
         #Directly access a selected bin 
         if(option == 1):
-            print("Please select a bin.")
-            print("(1) for Garbage")
-            print("(2) for Plastic")
-            print("(3) for Paper")
-            print("(4) for Compost")
-            print("(0) to go back")
+            print("\nPlease select a bin.")
+            print("\t(1) for Garbage")
+            print("\t(2) for Plastic")
+            print("\t(3) for Paper")
+            print("\t(4) for Compost")
+            print("\t(0) to go back")
             binID = int(input())
             if(binID != 0):
                 if(chooseBin(binID, stationID)):
@@ -134,8 +134,8 @@ if __name__ == '__main__':
             while True:
                 print("Select an item:")
                 for x in itemList: # Display all of the items in the list
-                    print(x)
-                print("Enter 'exit' to go back")
+                    print('\t', x)
+                print("\tEnter 'exit' to go back")
                 itemName = str(input())
 
                 if itemName in itemList:
