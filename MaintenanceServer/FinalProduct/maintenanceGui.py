@@ -85,7 +85,7 @@ def read_volumes(channelID):
   NEW_URL=URL+KEY+HEADER
 
   get_data=requests.get(NEW_URL).json()
-
+  print(get_data)
   feeds=get_data['feeds'][0]
   bins_list[bin_num]["waste"] = int(feeds["field1"])
   if bins_list[bin_num]["waste"] >= 100:

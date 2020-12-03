@@ -7,10 +7,10 @@ bins = [[0,0,0],[0,0,0],[0,0,0]]
 DEBUG = True
 
 
-def readFromThingSpeak(tsKey, bin_num):
+def readFromThingSpeak(bin_num):
   channelID = 1222563 + bin_num  
   URL="https://api.thingspeak.com/channels/" + str(channelID) + "/feeds.json?api_key="
-  KEY= tsKey
+  KEY='MG9FWWZOG8M0PCGK'
   HEADER='&results=1'
   NEW_URL=URL+KEY+HEADER
 
@@ -57,7 +57,7 @@ def activateStation(tsKey, stationID, whichBin):
         
         if (whichBin in [1, 2, 3]):
             # retrive bins new fullness value
-            readFromThingSpeak(tsKey, stationID)
+            readFromThingSpeak(stationID)
             bins[stationID][whichBin - 1] += 5
             # only update ThingSpeak if the Arduino actually returned a vlaue
             if bins[stationID][whichBin - 1] is not None:
@@ -68,6 +68,3 @@ def activateStation(tsKey, stationID, whichBin):
             if (DEBUG):
                 print('Invalid bin entry\n')
             return 0
-if __name__ == "__main__":
-    activateStation("BLT9N7F99578BAAM", 0, 2)
-    #writeToThingSpeak("BLT9N7F99578BAAM", 0)

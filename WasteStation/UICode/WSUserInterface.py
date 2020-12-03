@@ -1,18 +1,21 @@
 import sys
 sys.path.insert(1, '../SensorControls')
 import time
-import runStation
-
 SIMULATOR = True
+if SIMULATOR:
+    import hardwareEmulator
+else:
+    import runStation
+
 
 #The value of binID corresponds to each of the three bins in the system.
 #1 = Garbage, 2 = Plastics, 3 = Papers, 4 = Compost
 def chooseBin(binID, stationID):
     #Dictionary containing the channel id and API key of each station
     stationData = {
-        1 : {'channel_key' : 'MG9FWWZOG8M0PCGK', 'channel_id': '1222563'},
-        2 : {'channel_key' : 'TICC7ZFTEDZOPZ4F', 'channel_id': '1222564'},
-        3 : {'channel_key' : 'A6YJ6ETTQ38WWHBN', 'channel_id': '1222565'}
+        1 : {'channel_key' : 'BLT9N7F99578BAAM', 'channel_id': '1222563'},
+        2 : {'channel_key' : 'GDHEA7VGR18FXYSU', 'channel_id': '1222564'},
+        3 : {'channel_key' : 'KBQ5HYT7A32U1TQK', 'channel_id': '1222565'}
     }
 
     # Value checking for binID and staionID
@@ -25,7 +28,7 @@ def chooseBin(binID, stationID):
     
     print("Starting process...")
     if SIMULATOR:
-        result = activateStation(stationData[stationID]['channel_key'], stationID, binID)
+        result = hardwareEmulator.activateStation(stationData[stationID]['channel_key'], stationID, binID)
     else:
         result = activateStation(stationData[stationID]['channel_key'], binID)
     
@@ -54,7 +57,7 @@ def getEmptyBinLocation(channel_key, channel_id, bin_id):
     if(bin_id < 1 or bin_id > 4): # Only 1 to 4 are valid bin IDs
         return False    
 
-    URL="https://api.thingspeak.com/channels/" + channel_id + "/feeds.json?api_key=" 
+    URL="https://api.thingspeak.com/channels/" + str(channel_id) + "/feeds.json?api_key=" 
     KEY=channel_key
     HEADER='&results=1'
     NEW_URL=URL+KEY+HEADER
@@ -129,7 +132,7 @@ if __name__ == '__main__':
             print("(4) for Compost")
             print("(0) to go back")
             binID = int(input())
-            if(bin_id != 0):
+            if(binID != 0):
                 if(chooseBin(binID, stationID)):
                     print("Returning to Option Select")
                     time.sleep(2)
