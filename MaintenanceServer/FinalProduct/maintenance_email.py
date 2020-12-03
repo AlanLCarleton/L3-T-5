@@ -1,7 +1,7 @@
 import smtplib, ssl
 from email.message import EmailMessage
 
-def send_alert(bin_num, WS_num):
+def send_alert(bin_num, WS_num, level):
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
     sender_email = "maintenancecrewcarleton@gmail.com"
@@ -9,7 +9,7 @@ def send_alert(bin_num, WS_num):
 
 
     msg = EmailMessage()
-    content =  "Bin {} at Waste Station {} is almost full.".format(bin_num, WS_num)
+    content =  "Bin {} at Waste Station {} is almost full. \n Current level: {}%".format(bin_num, WS_num,level)
     msg.set_content(content)
 
     msg['Subject'] = "Full Bin Alert"
