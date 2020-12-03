@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import serial
 import urllib.request
+import json
 
 '''
     Script for calling the microcontroller (Arduino) vis Serial
@@ -15,7 +16,7 @@ import urllib.request
 DEBUG = True
 
 
-def writeToThingSpeak(tsKey, binNum, fullness):
+def writeToThingSpeak(tsKey, fullness1, fullness2, fullness3):
     '''
         Function to send data to specific ThingSpeak channel
 
@@ -27,15 +28,32 @@ def writeToThingSpeak(tsKey, binNum, fullness):
     '''
     URL = 'https://api.thingspeak.com/update?api_key='
     #tsKey = 'BLT9N7F99578BAAM'  # Write API Key (Station 1)
-    fieldNum = 'field' + str(binNum+1)
-    HEADER = ('&%s=%d' % (fieldNum, fullness))
+    #fieldNum = 'field' + str(binNum+1)
+    #HEADER = ('&%s=%d' % (fieldNum, fullness))
+    HEADER = ('&field1=%d&field2=%d&field3=%d' %
+              (int(fullness1), int(fullness2), int(fullness3)))
     #print(HEADER)
     FULL_URL = URL + tsKey + HEADER  # URL for the get request
 
     return urllib.request.urlopen(FULL_URL).read()
 
 
-def activateStation(tsKey, whichBin):
+def readThingspeakData(channel):
+    URL = 'https://api.thingspeak.com/channels/' + channel + '/feeds.json?'
+    HEADER = '&results=1'
+    FULL_URL = URL + HEADER  # URL for the get request
+
+    data = json.loads(urllib.request.urlopen(FULL_URL).read())
+    # extract from the pairs of feeds (only 1 in this case)
+    feeds = data['feeds']
+    #Extract data from each feed
+    field1 = feeds[0]['field1']
+    field2 = feeds[0]['field2']
+    field3 = feeds[0]['field3']
+    return field1, field2, field3
+
+
+def activateStation(tsKey, channelNum, whichBin):
     '''
         Function for activating user selected bin from waste station GUI
             Will trigger the chosen bin to check if it's full, then set the internal funnelling sytem to the
@@ -46,7 +64,6 @@ def activateStation(tsKey, whichBin):
                             1 = Garbage Bin
                             2 = Cans/Bottles Bin  
                             3 = Papers Bin
-                            4 = Compost Bin
 
         Return: 1 = Success
                 0 = Failure
@@ -54,18 +71,28 @@ def activateStation(tsKey, whichBin):
     '''
     
     while True:
-        if (whichBin in [1, 2, 3, 4]):
+        if (whichBin in [1, 2, 3]):
             # retrive bins new fullness value
-            fullness = arduinoComm(whichBin)
+            newFullness = arduinoComm(whichBin)
             # only update ThingSpeak if the Arduino actually returned a vlaue
-            if fullness is not None:
+            if newFullness is not None:
+                fullness1, fullness2, fullness3 = readThingspeakData(channelNum)
                 #write data to ThingSpeak
-                thingSpeakReturn = writeToThingSpeak(tsKey, int(whichBin), fullness)
+                if whichBin == 1:
+                    thingSpeakReturn = writeToThingSpeak(
+                        tsKey, newFullness, fullness2, fullness3)
+                elif whichBin == 2:
+                    thingSpeakReturn = writeToThingSpeak(
+                        tsKey, fullness1, newFullness, fullness3)
+                else:
+                    thingSpeakReturn = writeToThingSpeak(
+                        tsKey, fullness1, fullness2, newFullness)
+                
                 if (DEBUG):
-                    print("Distance from Ultrasonic Sensor: %dcm" % fullness)
+                    print("Distance from Ultrasonic Sensor: %dcm" % newFullness)
                     print("Return from ThingSpeak write:\n", thingSpeakReturn)
                 
-                return 1 if fullness < 100 else 2
+                return 1 if newFullness < 100 else 2
         else:
             if (DEBUG):
                 print('Invalid bin entry\n')
@@ -89,18 +116,17 @@ def testStation():
         print("(1) Garbage Bin")
         print("(2) Cans/Bottles Bin")
         print("(3) Papers Bin")
-        print("(4) Compost Bin")
-        print("(5) To Exit Test\n")
+        print("(4) To Exit Test\n")
 
         whichBin = str(input())
 
-        if (whichBin in ['1', '2', '3', '4']):
+        if (whichBin in ['1', '2', '3']):
             # retrive bins new fullness value
             fullness = arduinoComm(whichBin)
 
             if fullness is not None:
                 print("Distance from Ultrasonic Sensor: %dcm" % fullness)
-        elif (whichBin == '5'):
+        elif (whichBin == '4'):
             print("Exiting test function...\n")
             return 1
         else: print ("Invalid menu choice. Please selected one of the following below:\n")
@@ -116,7 +142,6 @@ def arduinoComm(whichBin):
                             1 = Garbage Bin
                             2 = Cans/Bottles Bin  
                             3 = Papers Bin
-                            4 = Compost Bin
 
         Return: fullness The new fullness value of the bin after performing its operation
     '''
