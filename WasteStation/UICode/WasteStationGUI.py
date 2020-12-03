@@ -11,7 +11,7 @@ import urllib.request
 import requests
 sys.path.insert(1, '../SensorControls')
 
-SIMULATOR = True
+SIMULATOR = False
 if SIMULATOR:
     import hardwareEmulator
 else:
@@ -28,17 +28,18 @@ bin_strings = ["Waste", "Paper", "Plastics"]
 bin_full_list = [[False, False, False], [False, False, False], [False, False, False]]
 
 
-station_id = 2
+station_id = 1
 #write_channel_key = 'BLT9N7F99578BAAM'
-#write_channel_key = 'GDHEA7VGR18FXYSU'
-write_channel_key ='KBQ5HYT7A32U1TQK'
-
+write_channel_key = 'GDHEA7VGR18FXYSU'
+#write_channel_key ='KBQ5HYT7A32U1TQK'
+channelID = 1222563
+channelID += station_id
 
 class Test():
     
     def getEmptyBinLocations(self, stationID):
-        channelID = 1222563
-        channelID += stationID
+        #channelID = 1222563
+        #channelID += stationID
         URL="https://api.thingspeak.com/channels/" + str(channelID) + "/feeds.json?api_key="
         KEY='MG9FWWZOG8M0PCGK'
         HEADER='&results=1'
@@ -67,7 +68,7 @@ class Test():
             bin_full_list[stationID][2] = False
         
         
-    def chooseBin(self, binID):
+    def chooseBin(self, channelID, binID):
         # Value checking for binID and stationID
         if(not isinstance(binID, int) or not isinstance(station_id, int)):# Checks that binID and stationID are int
             return False
@@ -93,12 +94,12 @@ class Test():
         if SIMULATOR:
             result = hardwareEmulator.activateStation(write_channel_key, station_id, binID)
         else:
-            result = activateStation(channel_key, binID)
+            result = runStation.activateStation(write_channel_key, channelID, binID)
         
         #Bin did not succesfully open
         if(result == 0):
             print("Something went wrong. Please try again.")
-            time.sleep(3)
+            time.sleep(2)
             return False
         #Bin successfully opens
         elif(result == 1):
@@ -122,7 +123,7 @@ class Test():
             bin_num = pizza_pizza_bins[itemNum]
             binName = bin_strings[bin_num]
         self.label.config(text = "Opening " + binName + " bin!")
-        self.chooseBin(bin_num)
+        self.chooseBin(channelID, bin_num)
         self.backButton.config(text = "Close Bin")
     
     def open_restaurant(self, restaurantName):
@@ -166,7 +167,7 @@ class Test():
         self.plasticsBinButton.grid_remove()
         self.label.config(text = "Opening " + binName + " bin!")
         bin_num = bin_strings.index(binName)
-        self.chooseBin(bin_num)
+        self.chooseBin(channelID, bin_num)
         self.backButton.config(text = "Close Bin")
         
     def bins(self):

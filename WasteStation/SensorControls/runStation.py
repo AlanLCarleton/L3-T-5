@@ -39,7 +39,7 @@ def writeToThingSpeak(tsKey, fullness1, fullness2, fullness3):
 
 
 def readThingspeakData(channel):
-    URL = 'https://api.thingspeak.com/channels/' + channel + '/feeds.json?'
+    URL = 'https://api.thingspeak.com/channels/' + str(channel) + '/feeds.json?'
     HEADER = '&results=1'
     FULL_URL = URL + HEADER  # URL for the get request
 
