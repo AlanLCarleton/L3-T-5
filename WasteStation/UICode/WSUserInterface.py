@@ -1,7 +1,12 @@
 import sys
 sys.path.insert(1, '../SensorControls')
 import time
-import runStation
+SIMULATOR = True
+if SIMULATOR:
+    import hardwareEmulator
+else:
+    import runStation
+
 
 #The value of binID corresponds to each of the three bins in the system.
 #1 = Garbage, 2 = Plastics, 3 = Papers
@@ -22,7 +27,10 @@ def chooseBin(binID, stationID):
         return False
     
     print("Starting process...")
-    result = runStation.activateStation(stationData[stationID]['channel_key'], stationData[stationID]['channel_id'], binID)
+    if SIMULATOR:
+        result = hardwareEmulator.activateStation(stationData[stationID]['channel_key'], stationID, binID)
+    else:
+        result = activateStation(stationData[stationID]['channel_key'], binID)
     
     #Bin did not succesfully open
     if(result == 0):
@@ -46,10 +54,11 @@ def chooseBin(binID, stationID):
 def getEmptyBinLocation(channel_key, channel_id, bin_id):
     if(not isinstance(bin_id, int)):# Checks that bin_id is an int
         return False
-    if(bin_id < 1 or bin_id > 3): # Only 1 to 4 are valid bin IDs
+
+    if(bin_id < 1 or bin_id > 4): # Only 1 to 4 are valid bin IDs
         return False    
 
-    URL="https://api.thingspeak.com/channels/" + channel_id + "/feeds.json?api_key=" 
+    URL="https://api.thingspeak.com/channels/" + str(channel_id) + "/feeds.json?api_key=" 
     KEY=channel_key
     HEADER='&results=1'
     NEW_URL=URL+KEY+HEADER
@@ -104,6 +113,7 @@ if __name__ == '__main__':
         "Can" : 2,
         "Cardboard Container" : 3,
         "Food" : 1,
+        "Green Waste" : 4
     }
 
     print("Input Station #:")
