@@ -3,6 +3,7 @@ import requests
 import threading
 import json
 import sqlite3
+from datetime import datetime
 from time import sleep
 from maintenance_email import send_alert
 
@@ -18,25 +19,30 @@ def get_levels(stationNumber):
     HEADER='&results=1'
     NEW_URL=URL+KEY+HEADER
     get_data=requests.get(NEW_URL).json()
-
     feeds=get_data['feeds'][0]
     print(feeds)
     
     currentLevel = [int(feeds["field1"]),int(feeds["field2"]),int(feeds["field3"])]
 
-    dbconnect = sqlite3.connect("maintenanceDB.db");
-    dbconnect.row_factory = sqlite3.Row;
-    cursor = dbconnect.cursor();
+
     if (lastLevels[stationNumber-1] != currentLevel):
-
-        for i ,level in enumerate(currentLevel):
-            if level >= 90:
-                send_alert(i+1,stationNumber,level)
-
         lastLevels[stationNumber-1] = currentLevel
+        dbconnect = sqlite3.connect("maintenanceDB.db");
+        dbconnect.row_factory = sqlite3.Row;
+        cursor = dbconnect.cursor();
         cursor.execute('''insert into StationStatus values (?, ?, ?, ?)''', (stationNumber, feeds["field1"],feeds["field2"],feeds["field3"]))
         dbconnect.commit();
 
+        for i ,level in enumerate(lastLevels[stationNumber-1]):
+            if level >= 90:
+                send_alert(i+1,stationNumber,level)
+                now = datetime.now()
+                dbconnect = sqlite3.connect("fullEventsDB");
+                dbconnect.row_factory = sqlite3.Row;
+                cursor = dbconnect.cursor();
+                cursor.execute('''insert into fullEvents values (?, ?, ?, ?)''', (str(now), stationNumber, i+1, level))
+                dbconnect.commit();
+                
 
 def start():
     while True:
