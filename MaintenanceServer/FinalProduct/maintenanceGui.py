@@ -6,6 +6,7 @@ import threading
 import json
 import smtplib, ssl
 import time
+import reading_saving
 
 sense = SenseHat()
 
@@ -77,111 +78,82 @@ def show_station_index(index):
   sense.show_letter(str(index), text_colour=red, back_colour=green)
 
 # Read Bin volume information from ThingSpeak
-def read_volumes(channelID):
-  bin_num = channelID - 1222563
-  URL="https://api.thingspeak.com/channels/" + str(channelID) + "/feeds.json?api_key="
-  KEY='MG9FWWZOG8M0PCGK'
-  HEADER='&results=1'
-  NEW_URL=URL+KEY+HEADER
-
-  get_data=requests.get(NEW_URL).json()
-  print(get_data)
-  feeds=get_data['feeds'][0]
-  bins_list[bin_num]["waste"] = int(feeds["field1"])
-  if bins_list[bin_num]["waste"] >= 100:
-      send_email("waste", bin_num)
-  bins_list[bin_num]["paper"] = int(feeds["field2"])
-  if bins_list[bin_num]["paper"] >= 100:
-      send_email("paper", bin_num)
-  bins_list[bin_num]["plastics"] = int(feeds["field3"])
-  if bins_list[bin_num]["plastics"] >= 100:
-      send_email("plastics", bin_num)
-
-def send_email(binType, stationID):
-    port = 465  # For SSL
-    smtp_server = "smtp.gmail.com"
-    sender_email = "maintenancecrewcarleton@gmail.com"
-    receiver_email = "maintenancecrewcarleton@gmail.com"
-    message = """\
-    Subject: Full Bin
-
-    {binType} at Waste Station {stationID} is full!"""
-
-    #password = getpass.getpass("Type your password and press enter: ")
-    password = "SYSC3010!"
-    context = ssl.create_default_context()
-
-    with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-        server.login(sender_email, password)
-        message = message.format(binType=binType, stationID=stationID)
-        server.sendmail(sender_email, receiver_email, message)
-
+def read_volumes():
+  last_levels = reading_saving.get_last_levels()
+  bins_list[0]["waste"] = last_levels[0][0]
+  bins_list[0]["paper"] = last_levels[0][1]
+  bins_list[0]["plastics"] = last_levels[0][2]
+  bins_list[1]["waste"] = last_levels[1][0]
+  bins_list[1]["paper"] = last_levels[1][1]
+  bins_list[1]["plastics"] = last_levels[1][2]
+  bins_list[2]["waste"] = last_levels[2][0]
+  bins_list[2]["paper"] = last_levels[2][1]
+  bins_list[2]["plastics"] = last_levels[2][2]
+  
 def main():
-    # Thingspeak Station IDs
-    station0_id=1222563
-    station1_id=1222564
-    station2_id=1222565
+  # Thingspeak Station IDs
+  station0_id=1222563
+  station1_id=1222564
+  station2_id=1222565
 
-    station_ids = [station0_id, station1_id, station2_id]
-    station_index = 0
-    num_stations = len(station_ids)
-    
-    # Bin types
-    bin_index = 0
-    bins = ["waste", "paper", "plastics"]
-    num_bins = len(bins)
-    
-    show_station_index(station_index % num_stations)
-    time.sleep(1)
-    read_volumes(station0_id)
-    update_screen("waste", bins_list[0])
-    update_time = time.perf_counter()
-    volume_screen = True
+  station_ids = [station0_id, station1_id, station2_id]
+  station_index = 0
+  num_stations = len(station_ids)
 
-    while True:
-      selection = False
-      events = sense.stick.get_events()
-      for event in events:
-        if event.action == "pressed":
-          if event.direction == "left":
-            bin_index -= 1
-            current_mode = bins[bin_index % num_bins]
-            update_screen(current_mode, bins_list[station_index % num_stations])
-            volume_screen = True
-          elif event.direction == "right":
-            bin_index += 1
-            current_mode = bins[bin_index % num_bins]
-            update_screen(current_mode, bins_list[station_index % num_stations])
-            volume_screen = True
-          elif event.direction == "up":
-            station_index += 1
-            bin_index = -1
-            show_station_index(station_index % num_stations)
-            read_volumes(station_ids[station_index % num_stations])
-            volume_screen = False
-          elif event.direction == "down":
-            station_index -= 1
-            bin_index = -1
-            show_station_index(station_index % num_stations)
-            read_volumes(station_ids[station_index % num_stations])
-            volume_screen = False
-          elif event.direction == "middle":
-            bin_index = -1
-            show_station_index(station_index % num_stations)
-            read_volumes(station_ids[station_index % num_stations])
-            volume_screen = False
-      if time.perf_counter() - update_time > 15:
-          read_volumes(station_ids[0])
-          read_volumes(station_ids[1])
-          read_volumes(station_ids[2])
-          if volume_screen:
-            current_mode = bins[bin_index % num_bins]
-            update_screen(current_mode, bins_list[station_index % num_stations])
-          update_time = time.perf_counter()
-       
+  # Bin types
+  bin_index = 0
+  bins = ["waste", "paper", "plastics"]
+  num_bins = len(bins)
+  print("start")
+
+  show_station_index(station_index % num_stations)
+  time.sleep(1)
+  read_volumes()
+  update_screen("waste", bins_list[0])
+  update_time = time.perf_counter()
+  volume_screen = True
+
+  while True:
+    selection = False
+    events = sense.stick.get_events()
+    for event in events:
+      if event.action == "pressed":
+        if event.direction == "left":
+          bin_index -= 1
+          current_mode = bins[bin_index % num_bins]
+          update_screen(current_mode, bins_list[station_index % num_stations])
+          volume_screen = True
+        elif event.direction == "right":
+          bin_index += 1
+          current_mode = bins[bin_index % num_bins]
+          update_screen(current_mode, bins_list[station_index % num_stations])
+          volume_screen = True
+        elif event.direction == "up":
+          station_index += 1
+          bin_index = -1
+          show_station_index(station_index % num_stations)
+          read_volumes()
+          volume_screen = False
+      elif event.direction == "down":
+          station_index -= 1
+          bin_index = -1
+          show_station_index(station_index % num_stations)
+          read_volumes()
+          volume_screen = False
+      elif event.direction == "middle":
+          bin_index = -1
+          show_station_index(station_index % num_stations)
+          read_volumes()
+          volume_screen = False
+    if time.perf_counter() - update_time > 30:
+      read_volumes()
+      if volume_screen:
+        current_mode = bins[bin_index % num_bins]
+        update_screen(current_mode, bins_list[station_index % num_stations])
+      update_time = time.perf_counter()
        
 if __name__ == "__main__":
-    main()
+  main()
         
   
   
