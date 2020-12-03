@@ -94,7 +94,7 @@ class Test():
         if SIMULATOR:
             result = hardwareEmulator.activateStation(write_channel_key, station_id, binID)
         else:
-            result = runStation.activateStation(write_channel_key, channelID, binID)
+            result = runStation.activateStation(write_channel_key, channelID, binID+1)
         
         #Bin did not succesfully open
         if(result == 0):
