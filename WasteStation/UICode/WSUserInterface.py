@@ -63,7 +63,7 @@ def getEmptyBinLocation(channel_key, channel_id, bin_id):
     feeds = station_data['feeds'][0]
 
     #The bin_id value must be incremented by 1 because of the offset from the id and the corresponding Thingspeak field
-    field_id = bin_id + 1
+    field_id = bin_id
     field_str = "field" + str(field_id)
 
     if(int(feeds[field_str]) <= 100):
