@@ -31,7 +31,7 @@ def writeToThingSpeak(tsKey, fullness1, fullness2, fullness3):
     #fieldNum = 'field' + str(binNum+1)
     #HEADER = ('&%s=%d' % (fieldNum, fullness))
     HEADER = ('&field1=%d&field2=%d&field3=%d' %
-              (fullness1, fullness2, fullness3))
+              (int(fullness1), int(fullness2), int(fullness3)))
     #print(HEADER)
     FULL_URL = URL + tsKey + HEADER  # URL for the get request
 

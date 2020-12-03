@@ -4,7 +4,7 @@ import time
 import runStation
 
 #The value of binID corresponds to each of the three bins in the system.
-#1 = Garbage, 2 = Plastics, 3 = Papers, 4 = Compost
+#1 = Garbage, 2 = Plastics, 3 = Papers
 def chooseBin(binID, stationID):
     #Dictionary containing the channel id and API key of each station
     stationData = {
@@ -16,7 +16,7 @@ def chooseBin(binID, stationID):
     # Value checking for binID and staionID
     if(not isinstance(binID, int) or not isinstance(stationID, int)):# Checks that binID and stationID are int
         return False
-    if(binID < 1 or binID > 4): # Only 1 to 4 are valid bin IDs
+    if(binID < 1 or binID > 3): # Only 1 to 3 are valid bin IDs
         return False
     if(stationID < 1 or stationID > 3): # Currently there are only 3 stations
         return False
@@ -46,7 +46,7 @@ def chooseBin(binID, stationID):
 def getEmptyBinLocation(channel_key, channel_id, bin_id):
     if(not isinstance(bin_id, int)):# Checks that bin_id is an int
         return False
-    if(bin_id < 1 or bin_id > 4): # Only 1 to 4 are valid bin IDs
+    if(bin_id < 1 or bin_id > 3): # Only 1 to 4 are valid bin IDs
         return False    
 
     URL="https://api.thingspeak.com/channels/" + channel_id + "/feeds.json?api_key=" 
@@ -104,7 +104,6 @@ if __name__ == '__main__':
         "Can" : 2,
         "Cardboard Container" : 3,
         "Food" : 1,
-        "Green Waste" : 4
     }
 
     print("Input Station #:")
@@ -121,7 +120,6 @@ if __name__ == '__main__':
             print("\t(1) for Garbage")
             print("\t(2) for Plastic")
             print("\t(3) for Paper")
-            print("\t(4) for Compost")
             print("\t(0) to go back")
             binID = int(input())
             if(binID != 0):
