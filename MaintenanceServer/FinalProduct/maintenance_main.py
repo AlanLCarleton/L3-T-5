@@ -24,9 +24,11 @@ def get_levels(stationNumber):
     
     currentLevel = [int(feeds["field1"]),int(feeds["field2"]),int(feeds["field3"])]
 
-
+    # when there are now data
     if (lastLevels[stationNumber-1] != currentLevel):
         lastLevels[stationNumber-1] = currentLevel
+
+        #save new data to maintenance database
         dbconnect = sqlite3.connect("maintenanceDB.db");
         dbconnect.row_factory = sqlite3.Row;
         cursor = dbconnect.cursor();
@@ -34,9 +36,12 @@ def get_levels(stationNumber):
         dbconnect.commit();
 
         for i ,level in enumerate(lastLevels[stationNumber-1]):
+            #when there is a bin has level >= 90%
             if level >= 90:
+                #send email alert
                 send_alert(i+1,stationNumber,level)
                 now = datetime.now()
+                #save the bin full event to fullEvent database
                 dbconnect = sqlite3.connect("fullEventsDB");
                 dbconnect.row_factory = sqlite3.Row;
                 cursor = dbconnect.cursor();

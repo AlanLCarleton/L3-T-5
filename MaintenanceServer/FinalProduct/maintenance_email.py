@@ -3,13 +3,13 @@ from email.message import EmailMessage
 from datetime import datetime
 
 def send_alert(bin_num, WS_num, level):
-    now = datetime.now()
+    now = datetime.now() # sending email date & time
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
     sender_email = "maintenancecrewcarleton@gmail.com"
     receiver_email = "maintenancecrewcarleton@gmail.com"
 
-
+    #Set email content
     msg = EmailMessage()
     content =  "At {}\nBin {} at Waste Station {} is almost full. \nCurrent level: {}%".format(now, bin_num, WS_num,level)
     msg.set_content(content)
