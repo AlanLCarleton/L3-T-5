@@ -22,7 +22,7 @@ def get_levels(stationNumber):
     feeds=get_data['feeds'][0]
     print(feeds)
     
-    currentLevel = [int(feeds["field2"]),int(feeds["field3"]),int(feeds["field4"])]
+    currentLevel = [int(feeds["field1"]),int(feeds["field2"]),int(feeds["field3"])]
 
     dbconnect = sqlite3.connect("maintenanceDB.db");
     dbconnect.row_factory = sqlite3.Row;
