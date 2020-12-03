@@ -17,7 +17,7 @@ const int BINDEPTH = 100; //bin depth is set to 100cm
 char binNum = 0;
 long time0;
 // number of steps per stepper motor rotation:
-const int stepsPerRevolution = 512; //2048 = full rotation
+const int stepsPerRevolution = 683; //2048 = full rotation
 
 // object initialization
 NewPing hcsr04(HCSR04_PIN_TRIG,HCSR04_PIN_ECHO);
@@ -90,7 +90,6 @@ int convertFullness(int hcsrDist)
  *                        '1' = Garbage Bin
                           '2' = Cans/Bottles Bin  
                           '3' = Papers Bin
-                          '4' = Compost Bin
  * param initFullness:  the initial fullness measurement on the bin (from ultrasonic sensor or simulated value)   
  * param simBin:        true if using a simulated bin (i.e. no use of ultrasonic sensor)
  *
@@ -104,25 +103,20 @@ void actuatorsRun(char bin, int initFullness, bool simBin)
       // funnel is already aligned (default position
       break;
     case '2':
-      // Trigger stepper motor to rotate for a quarter of full rotation:
+      // Trigger stepper motor to rotate for a third of full rotation:
       myStepper.step(stepsPerRevolution);
       delay(500);
       break;
     case '3':
-      // Trigger stepper motor to rotate for a half of full rotation:
+      // Trigger stepper motor to rotate for 2 thirds of full rotation:
       myStepper.step(2*stepsPerRevolution);
-      delay(500);
-      break;
-    case '4':
-      // Trigger stepper motor to rotate for a three quarters of full rotation:
-      myStepper.step(3*stepsPerRevolution);
       delay(500);
       break;
   }
   
   // 2. Open station's lid
   servo360Micro_1.writeMicroseconds(1790);
-  delay(215); // time delay of 215ms with speed of 1790 is enough rotation to open lid
+  delay(220); // time delay of 220ms with speed of 1790 is enough rotation to open lid
   servo360Micro_1.writeMicroseconds(1500); // stopped
   delay(100);
       
@@ -143,7 +137,7 @@ void actuatorsRun(char bin, int initFullness, bool simBin)
   delay(2500);
   //closing lid
   servo360Micro_1.writeMicroseconds(1180); // set servo speed (counter clockwise)
-  delay(165); // time delay of 165ms with speed of 1180 is enough rotation to close lid
+  delay(160); // time delay of 160ms with speed of 1180 is enough rotation to close lid
   servo360Micro_1.writeMicroseconds(1500); // stopped
   delay(100);
 
@@ -154,18 +148,13 @@ void actuatorsRun(char bin, int initFullness, bool simBin)
       // funnel is already aligned (default position)
       break;
     case '2':
-      // Trigger stepper motor to rotate for a quarter of full rotation in reverse:
+      // Trigger stepper motor to rotate for a third of full rotation in reverse:
       myStepper.step(-stepsPerRevolution);
       delay(500);
       break;
     case '3':
-      // Trigger stepper motor to rotate for a half of full rotation in reverse:
+      // Trigger stepper motor to rotate for 2 third of full rotation in reverse:
       myStepper.step(-2*stepsPerRevolution);
-      delay(500);
-      break;
-    case '4':
-      // Trigger stepper motor to rotate for a quarter of full rotation reverse:
-      myStepper.step(stepsPerRevolution);
       delay(500);
       break;
   }
@@ -188,9 +177,6 @@ void loop()
         break;
       case '3':
         hcsr04Dist = 0; //full
-        break;
-      case '4':
-        hcsr04Dist = 75; //not full
         break;
     }
   }
