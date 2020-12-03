@@ -58,7 +58,9 @@ def activateStation(tsKey, stationID, whichBin):
         if (whichBin in [0, 1, 2]):
             # retrive bins new fullness value
             readFromThingSpeak(stationID)
-            bins[stationID][whichBin] += 20
+            bins[stationID][whichBin] += 10
+            if bins[stationID][whichBin] > 100:
+                bins[stationID][whichBin] = 100
             # only update ThingSpeak if the Arduino actually returned a vlaue
             if bins[stationID][whichBin] is not None:
                 #write data to ThingSpeak
