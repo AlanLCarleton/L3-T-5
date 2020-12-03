@@ -87,13 +87,13 @@ def read_volumes(channelID):
   get_data=requests.get(NEW_URL).json()
 
   feeds=get_data['feeds'][0]
-  bins_list[bin_num]["waste"] = int(feeds["field2"])
+  bins_list[bin_num]["waste"] = int(feeds["field1"])
   if bins_list[bin_num]["waste"] >= 100:
       send_email("waste", bin_num)
-  bins_list[bin_num]["paper"] = int(feeds["field3"])
+  bins_list[bin_num]["paper"] = int(feeds["field2"])
   if bins_list[bin_num]["paper"] >= 100:
       send_email("paper", bin_num)
-  bins_list[bin_num]["plastics"] = int(feeds["field4"])
+  bins_list[bin_num]["plastics"] = int(feeds["field3"])
   if bins_list[bin_num]["plastics"] >= 100:
       send_email("plastics", bin_num)
 
