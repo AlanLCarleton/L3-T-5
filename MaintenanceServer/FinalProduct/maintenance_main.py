@@ -34,7 +34,7 @@ def get_levels(stationNumber):
                 send_alert(i+1,stationNumber,level)
 
         lastLevels[stationNumber-1] = currentLevel
-        cursor.execute('''insert into StationStatus values (?, ?, ?, ?)''', (stationNumber, feeds["field2"],feeds["field3"],feeds["field4"]))
+        cursor.execute('''insert into StationStatus values (?, ?, ?, ?)''', (stationNumber, feeds["field1"],feeds["field2"],feeds["field3"]))
         dbconnect.commit();
 
 
