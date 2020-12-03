@@ -55,12 +55,12 @@ def activateStation(tsKey, stationID, whichBin):
     
     while True:
         
-        if (whichBin in [1, 2, 3]):
+        if (whichBin in [0, 1, 2]):
             # retrive bins new fullness value
             readFromThingSpeak(stationID)
-            bins[stationID][whichBin - 1] += 5
+            bins[stationID][whichBin] += 20
             # only update ThingSpeak if the Arduino actually returned a vlaue
-            if bins[stationID][whichBin - 1] is not None:
+            if bins[stationID][whichBin] is not None:
                 #write data to ThingSpeak
                 thingSpeakReturn = writeToThingSpeak(tsKey, stationID)
                 return 1 if bins[stationID][whichBin - 1] < 100 else 2
@@ -68,3 +68,6 @@ def activateStation(tsKey, stationID, whichBin):
             if (DEBUG):
                 print('Invalid bin entry\n')
             return 0
+
+if __name__ == "__main__":
+    activateStation('BLT9N7F99578BAAM', 0, 1)
